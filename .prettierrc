@@ -1,0 +1,8 @@
+{
+  "plugins": [],
+  "tailwindFunctions": [],
+  "semi": false,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "trailingComma": "none"
+}

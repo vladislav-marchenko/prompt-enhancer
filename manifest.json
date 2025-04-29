@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Inject HTML Example",
+  "version": "1.0",
+  "description": "Injects HTML into the current page",
+  "action": {
+    "default_popup": "src/popup.html"
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "dist/content.js"
+      ],
+      "type": "module"
+    }
+  ]
+}
