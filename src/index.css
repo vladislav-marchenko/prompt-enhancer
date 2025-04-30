@@ -3,6 +3,27 @@
   border-color: #c832e3;
 }
 
+.prompt-enhancer-button-wrapper {
+  position: relative;
+}
+
+.prompt-enhancer-back-button {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+
+  width: 24px;
+  height: 24px;
+
+  background: #303030;
+  display: none;
+}
+
+
+.prompt-enhancer-button[data-original-prompt] .prompt-enhancer-back-button {
+  display: flex
+}
+
 .prompt-enhancer-button[data-loading="true"] .loader {
   display: block
 }
@@ -26,6 +47,11 @@
   border: 4px solid #ffffff40;
   border-right-color: #fff;
   animation: loading 1s infinite linear;
+}
+
+[data-testid="composer-footer-actions"] {
+  padding-top: 20px;
+  margin-top: -20px;
 }
 
 @keyframes loading {
