@@ -62,6 +62,7 @@ const getButtonHTML = (isLoading = false) => {
               stroke-linejoin="round"
             />
           </svg>
+          <span class="[display:var(--force-hide-label)] ps-1 pe-1 whitespace-nowrap">Enhance prompt</span>
         </button>
       </div>
     </div>`,
