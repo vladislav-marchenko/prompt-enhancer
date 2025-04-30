@@ -1,48 +1,47 @@
 import { API_KEY } from './config.js'
 
-const getButtonHTML = (status) => {
+const getButtonHTML = (isLoading = false) => {
   return new DOMParser().parseFromString(
-    `<div data-testid="prompt-enhancer">
-      <div
-        class="inline-flex h-9 rounded-full border text-[13px] font-medium duration-75 motion-safe:transition-all text-token-text-secondary border-token-border-default can-hover:hover:bg-token-main-surface-secondary focus-visible:outline-black dark:focus-visible:outline-white"
-        style="background: linear-gradient(45deg, #ff6ec4, #7873f5); border-color: #c832e3;"
+    `<div
+      data-loading="${isLoading}"
+      class="prompt-enhancer-button inline-flex h-9 rounded-full border text-[13px] font-medium duration-75 motion-safe:transition-all text-token-text-secondary border-token-border-default can-hover:hover:bg-token-main-surface-secondary focus-visible:outline-black dark:focus-visible:outline-white"
+    >
+      <button
+        type="button"
+        class="flex h-full min-w-8 items-center justify-center p-2"
+        data-testid="composer-button-search"
+        aria-pressed="false"
+        aria-label="Prompt Enhancer"
       >
-        <button
-          type="button"
-          id="prompt-enhancer"
-          class="flex h-full min-w-8 items-center justify-center p-2"
-          data-testid="composer-button-search"
-          aria-pressed="false"
-          aria-label="Prompt Enhancer"
+        <div class="loader"></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          viewBox="0 0 456 464"
+          fill="none"
+          class="magic-icon"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 456 464"
-            fill="none"
-          >
-            <path
-              d="M140.5 17C109.609 94.3988 83.0894 123.144 17 144.5C94.5725 171.871 119.567 199.874 140.5 266C161.124 199.871 194.348 176.305 267 141C195.48 121.025 170.02 90.9961 140.5 17Z"
-              stroke="white"
-              stroke-width="34"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M339.318 150C314.976 210.924 294.078 233.551 242 250.361C303.127 271.906 322.822 293.949 339.318 346C355.57 293.947 381.75 275.397 439 247.606C382.642 231.883 362.58 208.246 339.318 150Z"
-              stroke="white"
-              stroke-width="34"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M214.618 301C196.454 346.382 180.861 363.237 142 375.759C187.613 391.808 202.309 408.227 214.618 447C226.745 408.226 246.281 394.408 289 373.707C246.946 361.994 231.976 344.387 214.618 301Z"
-              stroke="white"
-              stroke-width="34"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      </div>
+          <path
+            d="M140.5 17C109.609 94.3988 83.0894 123.144 17 144.5C94.5725 171.871 119.567 199.874 140.5 266C161.124 199.871 194.348 176.305 267 141C195.48 121.025 170.02 90.9961 140.5 17Z"
+            stroke="white"
+            stroke-width="34"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M339.318 150C314.976 210.924 294.078 233.551 242 250.361C303.127 271.906 322.822 293.949 339.318 346C355.57 293.947 381.75 275.397 439 247.606C382.642 231.883 362.58 208.246 339.318 150Z"
+            stroke="white"
+            stroke-width="34"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M214.618 301C196.454 346.382 180.861 363.237 142 375.759C187.613 391.808 202.309 408.227 214.618 447C226.745 408.226 246.281 394.408 289 373.707C246.946 361.994 231.976 344.387 214.618 301Z"
+            stroke="white"
+            stroke-width="34"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
     </div>`,
     'text/html'
   ).body.firstChild
@@ -53,20 +52,32 @@ const injectButton = () => {
     '[data-testid="composer-footer-actions"]'
   )
 
-  if (!actionsList || actionsList.querySelector('#prompt-enhancer')) return
+  const isButtonInjected = !!actionsList?.querySelector(
+    '.prompt-enhancer-button button'
+  )
+
+  if (!actionsList || isButtonInjected) return
 
   const buttonHTML = getButtonHTML()
   actionsList.insertBefore(buttonHTML, actionsList.childNodes[1])
 
-  buttonHTML.addEventListener('click', async () => {
-    const promptInput = document.querySelector('#prompt-textarea')
-    const prompt = promptInput.textContent
-    const { content, error } = await enhancePrompt(prompt)
+  buttonHTML.addEventListener('click', async (event) => {
+    event.stopPropagation()
 
-    if (content) {
-      promptInput.textContent = content
-    } else if (error) {
+    const button = event.currentTarget
+    button.setAttribute('data-loading', 'true')
+
+    try {
+      const promptInput = document.querySelector('#prompt-textarea')
+      const prompt = promptInput.textContent
+      const { content, error } = await enhancePrompt(prompt)
+
+      if (error) throw new Error(error)
+      if (content) promptInput.textContent = content
+    } catch (error) {
       alert(error)
+    } finally {
+      button.setAttribute('data-loading', 'false')
     }
   })
 }
