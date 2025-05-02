@@ -1,10 +1,10 @@
 import { API_KEY } from './config.js'
 
-const getButtonHTML = (isLoading = false) => {
+const getButtonHTML = () => {
   return new DOMParser().parseFromString(
     `<div class="prompt-enhancer-button-wrapper">
       <div
-        data-loading="${isLoading}"
+        data-loading="false"
         class="prompt-enhancer-button inline-flex h-9 rounded-full border text-[13px] font-medium duration-75 motion-safe:transition-all text-token-text-secondary border-token-border-default can-hover:hover:bg-token-main-surface-secondary focus-visible:outline-black dark:focus-visible:outline-white"
       >
         <button
@@ -103,7 +103,6 @@ const handleEnhance = async (event) => {
     if (error) throw new Error(error)
 
     if (content) {
-      console.log(promptInput.textContent)
       button.setAttribute('data-original-prompt', promptInput.textContent)
       promptInput.textContent = content
     }
