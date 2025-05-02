@@ -1,5 +1,3 @@
-import { API_KEY } from './config.js'
-
 const getButtonHTML = () => {
   return new DOMParser().parseFromString(
     `<div class="prompt-enhancer-button-wrapper">
@@ -98,14 +96,10 @@ const handleEnhance = async (event) => {
 
   try {
     const promptInput = document.querySelector('#prompt-textarea')
-    const { content, error } = await enhancePrompt(promptInput.textContent)
+    const content = await enhancePrompt(promptInput.textContent)
 
-    if (error) throw new Error(error)
-
-    if (content) {
-      button.setAttribute('data-original-prompt', promptInput.textContent)
-      promptInput.textContent = content
-    }
+    button.setAttribute('data-original-prompt', promptInput.textContent)
+    promptInput.textContent = content
   } catch (error) {
     alert(error)
   } finally {
@@ -146,20 +140,22 @@ const enhancePrompt = async (prompt) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${API_KEY}`
+        Authorization: `Bearer ${import.meta.env.VITE_API_KEY}`
       },
       body: JSON.stringify(data)
     }
   )
 
   const jsonData = await response.json()
-  const content = jsonData.choices[0].message.content
 
-  if (content.includes('ERROR')) {
-    return { content: null, error: content.split('ERROR: ')[1] }
+  if (!response.ok) {
+    throw new Error(jsonData?.detail ?? 'Something went wrong...')
   }
 
-  return { content, error: null }
+  const content = jsonData.choices[0].message.content
+  if (content.includes('ERROR')) throw new Error(content.split('ERROR: ')[1])
+
+  return content
 }
 
 new MutationObserver(() => injectButton()).observe(document.body, {
