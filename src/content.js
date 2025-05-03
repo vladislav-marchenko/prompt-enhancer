@@ -96,9 +96,17 @@ const handleEnhance = async (event) => {
 
   try {
     const promptInput = document.querySelector('#prompt-textarea')
-    const content = await enhancePrompt(promptInput.textContent)
+    const prompt = promptInput.textContent
 
-    button.setAttribute('data-original-prompt', promptInput.textContent)
+    if (!prompt.length) {
+      throw new Error(
+        'The prompt is empty. Please provide a valid prompt and try again.'
+      )
+    }
+
+    const content = await enhancePrompt(prompt)
+
+    button.setAttribute('data-original-prompt', prompt)
     promptInput.textContent = content
   } catch (error) {
     alert(error)
