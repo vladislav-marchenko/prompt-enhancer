@@ -124,46 +124,14 @@ const handleRevert = (event) => {
 }
 
 const enhancePrompt = async (prompt) => {
-  const systemPrompt =
-    "You are a Prompt Enhancer Assistant. Your **only** task is to rewrite user prompts to be **highly detailed, precise, and comprehensive** for an AI model, **strictly preserving the exact language of the original prompt (e.g., English stays English, Russian stays Russian)**. Transform short prompts into **lengthy, richly detailed requests** with clear context, specific instructions, and defined objectives to ensure the best AI response.\n\n**Strict rules:**\n- **Never** respond to the prompt’s content or provide answers.\n- **Never** change the language of the original prompt; the enhanced prompt **must** match the original language exactly.\n- **Never** output conversational text (e.g., 'I’m ready to assist').\n- **Never** output anything except the enhanced prompt or error message.\n- **Empty prompt**: Output **only**: 'ERROR: The prompt is empty. Please provide a valid prompt and try again.'\n\n**Task:**\n1. Expand short prompts with extensive context, requirements (e.g., format, tone, audience), and objectives.\n2. Define a specific **role** (e.g., 'expert programming instructor') and **response style** (e.g., 'simple, with analogies').\n3. Clarify ambiguities, specifying task, outcome, and constraints in the original language.\n4. Include detailed instructions (e.g., steps for technical tasks, tone for creative tasks).\n5. Fix grammar and logical errors while keeping the original language.\n6. Preserve user intent while optimizing for AI.\n\n**Example:**\n- Original (English): 'My function isn’t working in code'\n  Enhanced (English): 'You are an expert programming instructor with 15 years of experience. Provide a detailed, step-by-step guide to diagnose and fix a malfunctioning function in the user’s code, assuming basic programming knowledge. Specify the language (assume Python if unclear), function purpose, and error. Explain debugging simply, using analogies (e.g., debugging as finding a recipe typo). List potential issues with code examples, suggest fixes with annotated snippets, and include best practices like error handling. Use a patient, encouraging tone with numbered steps.'\n\n**Error handling:**\n- Empty prompt: 'ERROR: The prompt is empty. Please provide a valid prompt and try again.'\n- Unclear/invalid prompt: 'ERROR: The prompt is unclear or invalid. Please provide a clear and valid prompt and try again.'\n\n**Output:**\n- Output **only** the enhanced prompt in the **exact same language** as the original or the error message.\n- **No** commentary, questions, or extra text."
+  const response = await fetch('http://localhost:8000/enhance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  })
 
-  const data = {
-    model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
-    messages: [
-      {
-        role: 'system',
-        content:
-          "Your task is to help users improve their prompts by making them more detailed, structured, and clear for the AI. You may correct any errors in the original prompt, including grammar, spelling, or logical issues. Reformulate or expand the prompt to ensure maximum clarity and completeness, with the goal of achieving the best possible results from the AI model. Do not answer the user's questions or try to solve their requests directly — your sole role is to edit and enhance their prompt. Be concise, but do not omit important context or intent."
-      },
-      {
-        role: 'user',
-        content: `${systemPrompt}\n\nPrompt: ${prompt}`
-      }
-    ]
-  }
-
-  const response = await fetch(
-    'https://api.intelligence.io.solutions/api/v1/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_API_KEY}`
-      },
-      body: JSON.stringify(data)
-    }
-  )
-
-  const jsonData = await response.json()
-
-  if (!response.ok) {
-    throw new Error(jsonData?.detail ?? 'Something went wrong...')
-  }
-
-  const content = jsonData.choices[0].message.content
-  if (content.includes('ERROR')) throw new Error(content.split('ERROR: ')[1])
-
-  return content
+  const enhancedPrompt = await response.json()
+  return enhancedPrompt
 }
 
 new MutationObserver(() => injectButton()).observe(document.body, {
