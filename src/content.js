@@ -130,6 +130,8 @@ const enhancePrompt = async (prompt) => {
     body: JSON.stringify({ prompt })
   })
 
+  if (!response.ok) throw new Error(response.statusText)
+
   const enhancedPrompt = await response.json()
   return enhancedPrompt
 }
