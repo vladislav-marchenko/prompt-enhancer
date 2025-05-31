@@ -124,7 +124,7 @@ const handleRevert = (event) => {
 }
 
 const enhancePrompt = async (prompt) => {
-  const response = await fetch('http://localhost:8000/enhance', {
+  const response = await fetch('https://prompt-enhancer.zapto.org/enhance', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt })
