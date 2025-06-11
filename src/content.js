@@ -130,10 +130,10 @@ const enhancePrompt = async (prompt) => {
     body: JSON.stringify({ prompt })
   })
 
-  if (!response.ok) throw new Error(response.statusText)
+  const content = await response.json()
+  if (!response.ok) throw new Error(content['detail'])
 
-  const enhancedPrompt = await response.json()
-  return enhancedPrompt
+  return content
 }
 
 new MutationObserver(() => injectButton()).observe(document.body, {
